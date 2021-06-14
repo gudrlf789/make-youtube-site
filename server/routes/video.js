@@ -47,7 +47,18 @@ router.post('/uploadVideo', (req, res) => {
     video.save((err, doc) => {
         if(err) return res.json({ success:  false, err });
         res.status(200).json({ success: true });
-    })
+    })  
+});
+
+router.get('/getVideos', (req, res) => {
+
+    // 비디오를 db에서 가져오기
+    Video.find()
+        .populate('writer')
+        .exec((err, videos) => {
+            if(err) return res.status(400).send(err);
+            res.status(200).json({ success: true, videos })
+        })
 });
 
 router.post('/thumbnail', (req, res) => {
