@@ -4,6 +4,7 @@ const { Video } = require("../models/Video");
 const { auth } = require("../middleware/auth");
 const multer = require('multer');
 var ffmpeg = require("fluent-ffmpeg");
+const Subscriber = require('../models/Subscriber');
 
 // storage multer config
 let storage = multer.diskStorage({
@@ -68,6 +69,30 @@ router.get('/getVideos', (req, res) => {
         .exec((err, videos) => {
             if(err) return res.status(400).send(err);
             res.status(200).json({ success: true, videos })
+        })
+});
+
+router.post('/getSubscriptionVideos', (req, res) => {
+
+    // 자신의 아이디를 가지고 구독하는 사람들을 찾는다
+    Subscriber.find({ userFrom: req.body.userFrom })
+        .exec(( err, subscriberInfo ) => {
+            if(err) return res.status(400).send(err);
+
+            let subscribedUser = [];
+
+            subscriberInfo.map((subscriber, i) => {
+                subscribedUser.push(subscriber.userTo);
+            })
+
+            // 찾은 사람들의 비디오를 가지고 온다.
+
+            Video.find({ writer: { $in:  subscribedUse }})
+                .populate('writer')
+                .exec((err, videos) => {
+                    if(err) return res.status(400).send(err);
+                    res.status(200).json({ success: true, videos })
+                })
         })
 });
 
